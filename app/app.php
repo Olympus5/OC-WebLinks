@@ -14,7 +14,7 @@ $app->register(new Silex\Provider\TwigServiceProvider(), array(
 ));
 
 // Register services
-$app['dao.link'] = $app->share(function ($app) {
+$app['dao.link'] = function ($app) {
     $linkDAO = new WebLinks\DAO\LinkDAO($app['db']);
     return $linkDAO;
-});
+};

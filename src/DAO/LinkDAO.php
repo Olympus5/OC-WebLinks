@@ -4,7 +4,7 @@ namespace WebLinks\DAO;
 
 use WebLinks\Domain\Link;
 
-class LinkDAO extends DAO 
+class LinkDAO extends DAO
 {
     /**
      * Returns a list of all links, sorted by id.
@@ -14,7 +14,7 @@ class LinkDAO extends DAO
     public function findAll() {
         $sql = "select * from t_link order by link_id desc";
         $result = $this->getDb()->fetchAll($sql);
-        
+
         // Convert query result to an array of domain objects
         $entities = array();
         foreach ($result as $row) {
@@ -33,9 +33,9 @@ class LinkDAO extends DAO
     protected function buildDomainObject($row) {
         $link = new Link();
         $link->setId($row['link_id']);
-        $link->setUrl($row['link_title']);
-        $link->setTitle($row['link_url']);
-        
+        $link->setUrl($row['link_url']);
+        $link->setTitle($row['link_title']);
+
         return $link;
     }
 }
