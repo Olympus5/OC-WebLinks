@@ -42,12 +42,11 @@ class HomeController {
     $link = new Link();
     $linkForm = $app['form.factory']->create(LinkType::class, $link);
 
-    $user = $app['user'];
-    $link->setAuthor($user);
-
     $linkForm->handleRequest($request);
 
     if($linkForm->isSubmitted() && $linkForm->isValid()) {
+      $user = $app['user'];
+      $link->setAuthor($user);
       $app['dao.link']->save($link);
       $app['session']->getFlashBag()->add('success', 'The link was successfully submitted');
     }
