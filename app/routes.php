@@ -3,38 +3,35 @@
 use Symfony\Component\HttpFoundation\Request;
 use WebLinks\Domain\Link;
 use WebLinks\Form\Type\LinkType;
+use WebLinks\Domain\User;
+use WebLinks\Form\Type\UserType;
 
 // Home page
-$app->get('/', function () use ($app) {
-    $links = $app['dao.link']->findAll();
-    return $app['twig']->render('index.html.twig', array('links' => $links));
-})->bind('home');
+$app->get('/', '\WebLinks\Controller\HomeController::indexAction')->bind('home');
 
 //Login page
-$app->get('/login', function(Request $request) use ($app) {
-  return $app['twig']->render('login.html.twig', array(
-    'error' => $app['security.last_error']($request),
-    'last_username' => $app['session']->get('_security.last_username')
-  ));
-})->bind('login');
+$app->get('/login', '\WebLinks\Controller\HomeController::loginAction')->bind('login');
 
-//Link page
-$app->match('/link/add', function(Request $request) use ($app) {
-  $link = new Link();
-  $linkForm = $app['form.factory']->create(LinkType::class, $link);
+//Add new link
+$app->match('/link/add', '\WebLinks\Controller\HomeController::addLinkAction')->bind('link_add');
 
-  $user = $app['user'];
-  $link->setAuthor($user);
+//Admin page
+$app->get('/admin', "\WebLinks\Controller\AdminController::indexAction")->bind('admin');
 
-  $linkForm->handleRequest($request);
+//Admin add new link
+$app->match('admin/link/add', '\WebLinks\Controller\HomeController::addLinkAction')->bind('admin_link_add');
 
-  if($linkForm->isSubmitted() && $linkForm->isValid()) {
-    $app['dao.link']->save($link);
-    $app['session']->getFlashBag()->add('success', 'The link was successfully submitted');
-  }
+//Edit link
+$app->match('admin/link/{id}/edit', '\WebLinks\Controller\AdminController::editLinkAction')->bind('admin_link_edit');
 
-  return $app['twig']->render('link_form.html.twig', array(
-    'title' => 'New link',
-    'linkForm' => $linkForm->createView()
-  ));
-})->bind('link_add');
+//Delete link
+$app->get('admin/link/{id}/delete', '\WebLinks\Controller\AdminController::deleteLinkAction')->bind('admin_link_delete');
+
+//Add user
+$app->match('admin/user/add', '\WebLinks\Controller\AdminController::addUserAction')->bind('admin_user_add');
+
+//Edit user
+$app->match('admin/user/{id}/edit', '\WebLinks\Controller\AdminController::editUserAction')->bind('admin_user_edit');
+
+//Delete user
+$app->get('admin/user/{id}/delete', '\WebLinks\Controller\AdminController::deleteUserAction')->bind('admin_user_delete');

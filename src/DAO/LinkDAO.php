@@ -4,6 +4,9 @@ namespace WebLinks\DAO;
 
 use WebLinks\Domain\Link;
 
+/**
+ * @author Olympus5
+ */
 class LinkDAO extends DAO
 {
 
@@ -61,7 +64,7 @@ class LinkDAO extends DAO
 
     /**
      * Saves a link into the database.
-     * @param The link to save
+     * @param link The link to save
      */
     public function save(Link $link) {
       $linkData = array(
@@ -77,5 +80,38 @@ class LinkDAO extends DAO
         $id = $this->getDb()->lastInsertId();
         $link->setId($id);
       }
+    }
+
+    /**
+     * Returns an link matching supplied id.
+     * @param id The link id
+     * @throws Exception if not matching link is found
+     * @return Link object
+     */
+    public function find($id) {
+      $sql = 'SELECT * FROM t_link WHERE link_id=?';
+
+      $row = $this->getDb()->fetchAssoc($sql, array($id));
+
+      if($row)
+        return $this->buildDomainObject($row);
+      else
+        throw new \Exception('No link matching id '.$id);
+    }
+
+    /**
+     * Removes an article from the DB
+     * @param id The link id
+     */
+    public function  delete($id) {
+      $this->getDb()->delete('t_link', array('link_id' => $id));
+    }
+
+    /**
+     * Removes all link for an user
+     * @param id The user id
+     */
+    public function deleteAllByUser($id) {
+      $this->getDb()->delete('t_link', array('user_id' => $id));
     }
 }

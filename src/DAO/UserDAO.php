@@ -13,8 +13,6 @@ use WebLinks\Domain\User;
  */
 class UserDAO extends DAO implements UserProviderInterface {
 
-  private $class;
-
   /**
    * Returns an user matching supplied id.
    * @param id User id
@@ -54,8 +52,6 @@ class UserDAO extends DAO implements UserProviderInterface {
   public function refreshUser(UserInterface $user) {
     $class = get_class($user);
 
-    $this->class = $class;
-
     if(!$this->supportsClass($class)) {
       throw new UnsupportedUserException(sprintf('Instance of "%s" are not supported.', $class));
     }
@@ -85,5 +81,53 @@ class UserDAO extends DAO implements UserProviderInterface {
     $user->setRole($row['user_role']);
 
     return $user;
+  }
+
+  /**
+   * Returns a list of all users, sorted by role and name.
+   * @return A list of all users.
+   */
+  public function findAll() {
+    $sql = 'SELECT * FROM t_user ORDER BY user_role, user_name';
+
+    $result = $this->getDb()->fetchAll($sql);
+
+    $entities = array();
+
+    foreach($result as $row) {
+      $id = $row['user_id'];
+      $entities[$id] = $this->buildDomainObject($row);
+    }
+
+    return $entities;
+  }
+
+  /**
+   * Save user into database.
+   * @param user The user to save
+   */
+  public function save(User $user) {
+    $userData = array(
+      'user_name' => $user->getUsername(),
+      'user_password' => $user->getPassword(),
+      'user_salt' => $user->getSalt(),
+      'user_role' => $user->getRole()
+    );
+
+    if($user->getId()) {
+      $this->getDb()->update('t_user', $userData, array('user_id' => $user->getId()));
+    } else {
+      $this->getDb()->insert('t_user', $userData);
+      $id = $this->getDb()->lastInsertId();
+      $user->setId($id);
+    }
+  }
+
+  /**
+   * Removes an user from the DB.
+   * @param id The user id
+   */
+  public function delete($id) {
+    $this->getDb()->delete('t_user', array('user_id' => $id));
   }
 }
