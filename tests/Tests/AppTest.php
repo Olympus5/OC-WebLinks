@@ -43,6 +43,10 @@ class AppTest extends WebTestCase {
     return $app;
   }
 
+  /**
+   * Provide all valid applicaion urls
+   * @return The list of all valid application urls
+   */
   public function provideUrls() {
     return array(
       array('/'),
@@ -52,7 +56,9 @@ class AppTest extends WebTestCase {
       array('/admin/link/add'),
       array('/admin/link/1/edit'),
       array('/admin/user/add'),
-      array('/admin/user/1/edit')
+      array('/admin/user/1/edit'),
+      array('/api/links'),
+      array('/api/link/1')
     );
   }
 
